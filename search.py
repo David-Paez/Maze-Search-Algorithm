@@ -112,6 +112,7 @@ def checkEast(arr, line, point):
 		return
 
 def breadth_first_search(graph, initial):
+	nodeCount = 0
 	visited = [False] * (len(graph.vertices))
 	
 	queue = []
@@ -120,13 +121,24 @@ def breadth_first_search(graph, initial):
 
 	while queue:
 		initial = queue.pop(0)
-		print (initial, end = " ")
+		nodeCount += 1
+		#print (initial, end = " ")
 
-		for i in graph.vertices[initial]:
+		if(initial == goalState):
+			print("We did it!")
+			print(nodeCount)
+			return
+
+		for v in g:
+			for w in v.get_connections():
+				queue.append(w.key)
+				visited[w.key] = True
+		'''
+		for i in graph.get_vertex(initial).get_connections():
 			if visited[i] == False:
 				queue.append(i)
 				visited[i] = True
-
+		'''
 
 m = Maze()
 g = Graph()
@@ -151,7 +163,6 @@ for line in range(len(Maze.plots)):
 
 #print("Initial: " + str(initialState))
 #print("Goal: " + str(goalState))
-
 breadth_first_search(g, initialState)
 '''
 for v in g:
