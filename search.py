@@ -15,6 +15,10 @@ class Maze:
 
 
 	createArray(mazeLines, plots)
+
+	def __str__(self):
+		for i in self.plots:
+			print(''.join(i))
 	#print(mazeLines)
 	#print(plots)
 
@@ -114,12 +118,14 @@ def checkEast(arr, line, point):
 def breadth_first_search(graph, initial):
 	nodeCount = 0
 	visited = [False] * (len(graph.vertices))
-	
+	poppedNodes = []
+
 	queue = []
 	queue.append(initial)
 	visited[initial] = True
 
 	while queue:
+		poppedNodes.append(queue[0])
 		initial = queue.pop(0)
 		nodeCount += 1
 		#print (initial, end = " ")
@@ -127,18 +133,16 @@ def breadth_first_search(graph, initial):
 		if(initial == goalState):
 			print("We did it!")
 			print(nodeCount)
-			return
+			break
 
 		for v in g:
 			for w in v.get_connections():
 				queue.append(w.key)
 				visited[w.key] = True
-		'''
-		for i in graph.get_vertex(initial).get_connections():
-			if visited[i] == False:
-				queue.append(i)
-				visited[i] = True
-		'''
+
+	poppedNodes.pop(0)
+	poppedNodes.pop(len(poppedNodes)-1)
+	return poppedNodes
 
 m = Maze()
 g = Graph()
@@ -146,24 +150,37 @@ g = Graph()
 initialState = 0
 goalState = 0
 
-for i in range(len(Maze.plots) * len(Maze.plots[0])):
+for i in range(len(m.plots) * len(m.plots[0])):
 	g.add_vertex(Vertex(i))
 
-for line in range(len(Maze.plots)):
-	for point in range(len(Maze.plots[0])):
-		if(Maze.plots[line][point] != "%"):
-			checkNorth(Maze.plots, line, point)
-			checkSouth(Maze.plots, line, point)
-			checkEast(Maze.plots, line, point)
-			checkWest(Maze.plots, line, point)
-		if(Maze.plots[line][point] == "."):
-			initialState = (line * len(Maze.plots[0])) + point
-		if(Maze.plots[line][point] == "P"):
-			goalState = (line * len(Maze.plots[0])) + point
+for line in range(len(m.plots)):
+	for point in range(len(m.plots[0])):
+		if(m.plots[line][point] != "%"):
+			checkNorth(m.plots, line, point)
+			checkSouth(m.plots, line, point)
+			checkEast(m.plots, line, point)
+			checkWest(m.plots, line, point)
+		if(m.plots[line][point] == "."):
+			initialState = (line * len(m.plots[0])) + point
+		if(m.plots[line][point] == "P"):
+			goalState = (line * len(m.plots[0])) + point
 
 #print("Initial: " + str(initialState))
 #print("Goal: " + str(goalState))
-breadth_first_search(g, initialState)
+
+
+bfsArr = breadth_first_search(g, initialState)
+
+bfsMaze = Maze()
+count = 0
+
+for i in bfsArr:
+	line = i //len(bfsMaze.plots[0])
+	point = i % len(bfsMaze.plots[0])
+	bfsMaze.plots[line][point] = "."
+	#print("Coords: " + str(line) + "," + str(point))
+
+print(bfsMaze)
 '''
 for v in g:
 	for w in v.get_connections():
