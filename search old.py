@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 class Maze:
 	mazeLines = []
 	plots = []
@@ -19,20 +17,59 @@ class Maze:
 	createArray(mazeLines, plots)
 
 	def __str__(self):
-		mazeMap = ''
 		for i in self.plots:
-			mazeMap += ''.join(i)
-			mazeMap += "\n"
-		return mazeMap
+			print(''.join(i))
 	#print(mazeLines)
 	#print(plots)
 
-class Graph:
-    def __init__(self): 
-        self.graph = defaultdict(list) 
+class Vertex(object):
+    def __init__(self, key):
+        self.key = key
+        self.neighbors = {}
 
-    def add_edge(self, u, v): 
-        self.graph[u].append(v) 
+    def add_neighbor(self, neighbor, weight=0):
+        self.neighbors[neighbor] = weight
+
+    def __str__(self):
+        return '{} neighbors: {}'.format(
+            self.key,
+            [x.key for x in self.neighbors]
+        )
+
+    def get_connections(self):
+        return self.neighbors.keys()
+
+    def get_weight(self, neighbor):
+        return self.neighbors[neighbor]
+
+class Graph(object):
+    def __init__(self):
+        self.vertices = {}
+
+    def add_vertex(self, vertex):
+        self.vertices[vertex.key] = vertex
+
+    def get_vertex(self, key):
+        try:
+            return self.vertices[key]
+        except KeyError:
+            return None
+
+    def __contains__(self, key):
+        return key in self.vertices
+
+    def add_edge(self, from_key, to_key, weight=1):
+        if from_key not in self.vertices:
+            self.add_vertex(Vertex(from_key))
+        if to_key not in self.vertices:
+            self.add_vertex(Vertex(to_key))
+        self.vertices[from_key].add_neighbor(self.vertices[to_key], weight)
+
+    def get_vertices(self):
+        return self.vertices.keys()
+
+    def __iter__(self):
+        return iter(self.vertices.values())
 
 def checkNorth(arr, line, point):
 	try:
@@ -80,7 +117,7 @@ def checkEast(arr, line, point):
 
 def breadth_first_search(graph, initial):
 	nodeCount = 0
-	visited = [False] * (len(m.plots)) * (len(m.plots[0]))
+	visited = [False] * (len(graph.vertices))
 	poppedNodes = []
 
 	queue = []
@@ -97,43 +134,48 @@ def breadth_first_search(graph, initial):
 			print("We did it!")
 			print(nodeCount)
 			break
-
-		for n in graph.graph[initial]:
-			if visited[n] == False:
-				queue.append(n)
-				visited[n] = True
+			
+		for v in graph:
+			for w in v.get_connections():
+				queue.append(w.key)
+				visited[w.key] = True
 
 	poppedNodes.pop(0)
 	poppedNodes.pop(len(poppedNodes)-1)
 	return poppedNodes
 
-def DFSUtil(graph, v, visited): 
+def DFSUtil(self, v, visited): 
 
-	visited[v] = True
-	print(v, end = ' ')
+    # Mark the current node as visited  
+    # and print it 
+    visited[v] = True
+    print(v, end = ' ') 
 
-	# Recur for all the vertices  
-	# adjacent to this vertex 
-	for i in graph.graph[v]: 
-	    if visited[i] == False: 
-	        DFSUtil(graph, i, visited)
+    # Recur for all the vertices  
+    # adjacent to this vertex 
+    for i in self.graph[v]: 
+        if visited[i] == False: 
+            self.DFSUtil(i, visited) 
 
 # The function to do DFS traversal. It uses 
 # recursive DFSUtil() 
-def depth_first_search(graph, v): 
+def DFS(self, v): 
 
     # Mark all the vertices as not visited 
-    visited = [False] * (len(m.plots)) * (len(m.plots[0]))
+    visited = [False] * (len(self.graph)) 
 
     # Call the recursive helper function  
     # to print DFS traversal 
-    DFSUtil(graph, v, visited)
+    self.DFSUtil(v, visited)
 
 m = Maze()
 g = Graph()
 
 initialState = 0
 goalState = 0
+
+for i in range(len(m.plots) * len(m.plots[0])):
+	g.add_vertex(Vertex(i))
 
 for line in range(len(m.plots)):
 	for point in range(len(m.plots[0])):
@@ -151,12 +193,10 @@ for line in range(len(m.plots)):
 #print("Goal: " + str(goalState))
 
 
-#bfsArr = breadth_first_search(g, initialState)
-bfsArr = depth_first_search(g, initialState)
+bfsArr = breadth_first_search(g, initialState)
 
 bfsMaze = Maze()
 count = 0
-
 
 for i in bfsArr:
 	line = i //len(bfsMaze.plots[0])
@@ -165,8 +205,6 @@ for i in bfsArr:
 	#print("Coords: " + str(line) + "," + str(point))
 
 print(bfsMaze)
-
-
 '''
 for v in g:
 	for w in v.get_connections():
