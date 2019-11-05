@@ -46,7 +46,8 @@ class Maze:
 	def getPosition(self, r,c):
 		if c >= 0 and c < self.numCols:
 			if r >= 0 and r < self.numRows:
-				return (r,c)
+				if self.plots[c][r] != "%":
+					return (r,c)
 		else:
 			return None
 
@@ -89,14 +90,40 @@ def breadth_first_search(maze):
 				visited[n[0]][n[1]] = True
 
 def depth_first_search(maze):
-	visited = ([0] * numCols) * numRows
+	stack = [maze.initialPos]
+	visited = []
+	visitedCount = 0
 
+	while stack:
+		node = stack.pop()
+		visitedCount += 1
+		if node in visited:
+			continue
+		if node == maze.goalPos:
+			break
+		visited.append(node)
+		for neighbor in maze.getAdjacent(node[0], node[1]):
+			if neighbor == None:
+				continue
+			stack.append(neighbor)
+			
+	print (visitedCount)
+	return visited
+
+def displayNewMaze(maze, path):
+	temp = maze
+	for vertex in path:
+		temp.plots[vertex[1]][vertex[0]] = "."
+
+	print(temp)
 
 def main():
 	m = Maze()
 	print(str(m.initialPos) + " " + str(m.goalPos) + " " + str(m.numRows) + " " + str(m.numCols))
 	print(m)
 	print(breadth_first_search(m))
+	#print(depth_first_search(m))
+	displayNewMaze(m, depth_first_search(m))
 
 main()
 
