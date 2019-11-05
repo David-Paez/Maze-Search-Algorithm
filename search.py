@@ -22,8 +22,8 @@ class Maze:
 				temp.append(char)
 			p.append(temp)
 
-		self.numRows = y + 1
-		self.numCols = x + 1
+		self.numRows = x + 1
+		self.numCols = y + 1
 
 
 	def __str__(self):
@@ -43,58 +43,60 @@ class Maze:
 		self.createArray(self.plots)
 		#print(self.plots)
 
-	def getPosition(r,c):
-		if c >= 0 and c < numCols:
-			if r >= 0 and r < numRows:
-				return self.plots[r][c]
+	def getPosition(self, r,c):
+		if c >= 0 and c < self.numCols:
+			if r >= 0 and r < self.numRows:
+				return (r,c)
 		else:
 			return None
 
-	def getAdjacent(r,c):
+	def getAdjacent(self,r,c):
 		neighbors = []
-		neighbors.append(getPosition(r-1,c)) # North
-		neighbors.append(getPosition(r,c+1)) # East
-		neighbors.append(getPosition(r+1,c)) # South
-		neighbors.append(getPosition(r,c-1)) # West
+		neighbors.append(self.getPosition(r-1,c)) # North
+		neighbors.append(self.getPosition(r,c+1)) # East
+		neighbors.append(self.getPosition(r+1,c)) # South
+		neighbors.append(self.getPosition(r,c-1)) # West
 
 		return neighbors
 
 def breadth_first_search(maze):
 
+	visited = [[0 for i in range(maze.numCols)] for j in range(maze.numRows)]
 	visitedCount = 0
-	visited = [False] * maze.numRows * maze.numCols
-	poppedNodes = []
+	#visited = ([0] * maze.numCols) * maze.numRows
 
 	queue = []
-	stack = []
 
 	queue.append(maze.initialPos)
-	visited[maze.initialPos] = True
+	visited[maze.initialPos[0]][maze.initialPos[1]] = 1
 
 	while queue:
-		poppedNodes.append(queue[0])
 		curr = queue.pop(0)
 		visitedCount += 1
 		#print (initial, end = " ")
 
-		if(curr == goalState):
+		if(curr == maze.goalPos):
 			print("We did it!")
 			print(visitedCount)
-			break
+			return curr
 
-		for n in maze.getAdjacent(curr):
-			if visited[n] == False:
+		#print(maze.getAdjacent(curr[0], curr[1]))
+		for n in maze.getAdjacent(curr[0], curr[1]):
+			if n == None:
+				continue
+			elif visited[n[0]][n[1]] == False:
 				queue.append(n)
-				visited[n] = True
+				visited[n[0]][n[1]] = True
 
-	poppedNodes.pop(0)
-	poppedNodes.pop(len(poppedNodes)-1)
-	return poppedNodes
+def depth_first_search(maze):
+	visited = ([0] * numCols) * numRows
+
 
 def main():
 	m = Maze()
 	print(str(m.initialPos) + " " + str(m.goalPos) + " " + str(m.numRows) + " " + str(m.numCols))
 	print(m)
+	print(breadth_first_search(m))
 
 main()
 
