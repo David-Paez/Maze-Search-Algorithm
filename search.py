@@ -60,15 +60,23 @@ class Maze:
 
 		return neighbors
 
-def breadth_first_search(maze):
+def backtrack(parent, initial, goal):
+	path = [goal]
+	while path[-1] != initial:
+		path.append(parent[path[-1]])
+	path.reverse()
+	print("Solution cost: " + str(len(path)))
+	return path
 
+def breadth_first_search(maze):
+	queue = [maze.initialPos]
 	visited = [[0 for i in range(maze.numCols)] for j in range(maze.numRows)]
 	visitedCount = 0
 	#visited = ([0] * maze.numCols) * maze.numRows
 
-	queue = []
 
-	queue.append(maze.initialPos)
+	parent = {}
+
 	visited[maze.initialPos[0]][maze.initialPos[1]] = 1
 
 	while queue:
@@ -77,43 +85,65 @@ def breadth_first_search(maze):
 		#print (initial, end = " ")
 
 		if(curr == maze.goalPos):
-			print("We did it!")
-			print(visitedCount)
-			return curr
+			print("==== Breadth First Search ====")
+			print("Nodes expanded: " + str(visitedCount))
+			return(backtrack(parent, maze.initialPos, maze.goalPos))
 
 		#print(maze.getAdjacent(curr[0], curr[1]))
 		for n in maze.getAdjacent(curr[0], curr[1]):
 			if n == None:
 				continue
 			elif visited[n[0]][n[1]] == False:
+				if n not in queue:
+					parent[n] = curr
+				
 				queue.append(n)
+
 				visited[n[0]][n[1]] = True
+
+	
 
 def depth_first_search(maze):
 	stack = [maze.initialPos]
-	visited = []
+	#visited = []
+	visited = [[0 for i in range(maze.numCols)] for j in range(maze.numRows)]
+
+	parent = {}
 	visitedCount = 0
 
+	visited[maze.initialPos[0]][maze.initialPos[1]] = 1
+
+
 	while stack:
-		node = stack.pop()
+		curr = stack.pop()
 		visitedCount += 1
-		if node in visited:
-			continue
-		if node == maze.goalPos:
-			break
-		visited.append(node)
-		for neighbor in maze.getAdjacent(node[0], node[1]):
-			if neighbor == None:
+		#print (initial, end = " ")
+
+		if(curr == maze.goalPos):
+			print("==== Depth First Search ====")
+			print("Nodes expanded: " + str(visitedCount))
+			return(backtrack(parent, maze.initialPos, maze.goalPos))
+
+		#print(maze.getAdjacent(curr[0], curr[1]))
+		for n in maze.getAdjacent(curr[0], curr[1]):
+			if n == None:
 				continue
-			stack.append(neighbor)
+			elif visited[n[0]][n[1]] == False:
+				if n not in stack:
+					parent[n] = curr
+				
+				stack.append(n)
+
+				visited[n[0]][n[1]] = True
 			
 	print (visitedCount)
-	return visited
+	
 
 def displayNewMaze(maze, path):
 	temp = maze
 	for vertex in path:
-		temp.plots[vertex[1]][vertex[0]] = "."
+		if temp.plots[vertex[1]][vertex[0]] != "P":
+			temp.plots[vertex[1]][vertex[0]] = "."
 
 	print(temp)
 
@@ -121,7 +151,8 @@ def main():
 	m = Maze()
 	print(str(m.initialPos) + " " + str(m.goalPos) + " " + str(m.numRows) + " " + str(m.numCols))
 	print(m)
-	print(breadth_first_search(m))
+	#print(breadth_first_search(m))
+	displayNewMaze(m, breadth_first_search(m))
 	#print(depth_first_search(m))
 	displayNewMaze(m, depth_first_search(m))
 
