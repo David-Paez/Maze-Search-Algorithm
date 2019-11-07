@@ -1,9 +1,10 @@
-from collections import defaultdict
+from queue import PriorityQueue
+from copy import deepcopy
 
 class Maze:
 	def createArray(self, p):
 		lines = []
-		f = open("Maze2.txt","r")
+		f = open("Maze3.txt","r")
 		for line in f:
 			lines.append(line.rstrip('\n'))
 
@@ -61,6 +62,8 @@ class Maze:
 		return neighbors
 
 def backtrack(parent, initial, goal):
+	path = []
+	path.clear()
 	path = [goal]
 	while path[-1] != initial:
 		path.append(parent[path[-1]])
@@ -137,10 +140,87 @@ def depth_first_search(maze):
 				visited[n[0]][n[1]] = True
 			
 	print (visitedCount)
+
+def manhattan_distance(n1, n2):
+	return abs(n1[0] - n2[0]) + abs(n1[1] - n2[1])
+
+def greedy_best_first_search(maze):
+	pq = PriorityQueue()
+	#visited = []
+	visited = [[0 for i in range(maze.numCols)] for j in range(maze.numRows)]
+
+	parent = {}
+	visitedCount = 0
+	mdist = 0
+
+	pq.put((1, maze.initialPos))
+	visited[maze.initialPos[0]][maze.initialPos[1]] = 1
+
+
+	while pq:
+		curr = pq.get()
+		curr = curr[1]
+		visitedCount += 1
+		#print (initial, end = " ")
+
+		if(curr == maze.goalPos):
+			print("==== Greedy Best First Search ====")
+			print("Nodes expanded: " + str(visitedCount))
+			return(backtrack(parent, maze.initialPos, maze.goalPos))
+
+		#print(maze.getAdjacent(curr[0], curr[1]))
+		for n in maze.getAdjacent(curr[0], curr[1]):
+			if n == None:
+				continue
+			elif visited[n[0]][n[1]] == False:
+				parent[n] = curr
+				
+				pq.put((manhattan_distance(n, maze.goalPos), n))
+
+				visited[n[0]][n[1]] = True
+			
+	print (visitedCount)
+
+def a_star_search(maze):
+	pq = PriorityQueue()
+	#visited = []
+	visited = [[0 for i in range(maze.numCols)] for j in range(maze.numRows)]
+
+	parent = {}
+	visitedCount = 0
+	mdist = 0
+
+	pq.put((1, maze.initialPos))
+	visited[maze.initialPos[0]][maze.initialPos[1]] = 1
+
+
+	while pq:
+		curr = pq.get()
+		curr = curr[1]
+		visitedCount += 1
+		#print (initial, end = " ")
+
+		if(curr == maze.goalPos):
+			print("==== A* Search ====")
+			print("Nodes expanded: " + str(visitedCount))
+			return(backtrack(parent, maze.initialPos, maze.goalPos))
+
+		#print(maze.getAdjacent(curr[0], curr[1]))
+		for n in maze.getAdjacent(curr[0], curr[1]):
+			if n == None:
+				continue
+			elif visited[n[0]][n[1]] == False:
+				parent[n] = curr
+				
+				pq.put((manhattan_distance(n, maze.goalPos) + manhattan_distance(n, maze.initialPos), n))
+
+				visited[n[0]][n[1]] = True
+			
+	print (visitedCount)
 	
 
 def displayNewMaze(maze, path):
-	temp = maze
+	temp = deepcopy(maze)
 	for vertex in path:
 		if temp.plots[vertex[1]][vertex[0]] != "P":
 			temp.plots[vertex[1]][vertex[0]] = "."
@@ -151,10 +231,10 @@ def main():
 	m = Maze()
 	print(str(m.initialPos) + " " + str(m.goalPos) + " " + str(m.numRows) + " " + str(m.numCols))
 	print(m)
-	#print(breadth_first_search(m))
 	displayNewMaze(m, breadth_first_search(m))
-	#print(depth_first_search(m))
 	displayNewMaze(m, depth_first_search(m))
+	displayNewMaze(m, greedy_best_first_search(m))
+	displayNewMaze(m, a_star_search(m))
 
 main()
 
