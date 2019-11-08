@@ -1,10 +1,18 @@
 from queue import PriorityQueue
 from copy import deepcopy
+import argparse
+import sys
 
 class Maze:
-	def createArray(self, p):
+	def createArray(self, p, filename):
 		lines = []
-		f = open("Maze3.txt","r")
+
+		try:
+			f = open(filename,"r")
+		except:
+			print("No file named {0}, try again.".format(filename))
+			sys.exit()
+
 		for line in f:
 			lines.append(line.rstrip('\n'))
 
@@ -33,16 +41,14 @@ class Maze:
 			mazeMap += ''.join(i)
 			mazeMap += "\n"
 		return mazeMap
-	#print(mazeLines)
 
-	def __init__(self):
+	def __init__(self, filename):
 		self.plots = []
 		self.initialPos = (-1,-1)
 		self.goalPos = (-1,-1)
 		self.numRows = -1
 		self.numCols = -1
-		self.createArray(self.plots)
-		#print(self.plots)
+		self.createArray(self.plots, filename)
 
 	def getPosition(self, r,c):
 		if c >= 0 and c < self.numCols:
@@ -228,13 +234,28 @@ def displayNewMaze(maze, path):
 	print(temp)
 
 def main():
-	m = Maze()
-	print(str(m.initialPos) + " " + str(m.goalPos) + " " + str(m.numRows) + " " + str(m.numCols))
-	print(m)
-	displayNewMaze(m, breadth_first_search(m))
-	displayNewMaze(m, depth_first_search(m))
-	displayNewMaze(m, greedy_best_first_search(m))
-	displayNewMaze(m, a_star_search(m))
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--method", help="choose which searching algorithm to use on maze")
+	parser.add_argument("maze", help="choose the maze text file you would like to search")
+	args = parser.parse_args()
+
+	m = Maze(args.maze)
+
+	print(args)
+
+	if args.method == "breadth":
+		displayNewMaze(m, breadth_first_search(m))
+	elif args.method == "depth":
+		displayNewMaze(m, depth_first_search(m))
+	elif args.method == "greedy": 
+		displayNewMaze(m, greedy_best_first_search(m))
+	elif args.method == "astar":
+		displayNewMaze(m, a_star_search(m))
+	else:
+		print("No proper method chosen. Default: Breadth")
+		displayNewMaze(m, breadth_first_search(m))
+
+
 
 main()
 
