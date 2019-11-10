@@ -16,23 +16,23 @@ class Maze:
 		for line in f:
 			lines.append(line.rstrip('\n'))
 
-		x = -1
-		y = -1
+		c = -1
+		r = -1
 		for line in lines:
 			temp = []
-			y += 1
-			x = -1
+			r += 1
+			c = -1
 			for char in line:
-				x += 1
+				c += 1
 				if char == ".":
-					self.initialPos = (x,y)
+					self.initialPos = (r,c)
 				elif char == "P":
-					self.goalPos = (x,y)
+					self.goalPos = (r,c)
 				temp.append(char)
 			p.append(temp)
 
-		self.numRows = x + 1
-		self.numCols = y + 1
+		self.numRows = r + 1
+		self.numCols = c + 1
 
 
 	def __str__(self):
@@ -53,13 +53,15 @@ class Maze:
 	def getPosition(self, r,c):
 		if c >= 0 and c < self.numCols:
 			if r >= 0 and r < self.numRows:
-				if self.plots[c][r] != "%":
+				if self.plots[r][c] != "%":
+					#print(c,r)
 					return (r,c)
 		else:
 			return None
 
 	def getAdjacent(self,r,c):
 		neighbors = []
+
 		neighbors.append(self.getPosition(r-1,c)) # North
 		neighbors.append(self.getPosition(r,c+1)) # East
 		neighbors.append(self.getPosition(r+1,c)) # South
@@ -165,7 +167,6 @@ def greedy_best_first_search(maze):
 
 	parent = {}
 	visitedCount = 0
-	mdist = 0
 
 	pq.put((1, maze.initialPos))
 	visited[maze.initialPos[0]][maze.initialPos[1]] = 1
@@ -202,7 +203,6 @@ def a_star_search(maze):
 
 	parent = {}
 	visitedCount = 0
-	mdist = 0
 
 	pq.put((1, maze.initialPos))
 	visited[maze.initialPos[0]][maze.initialPos[1]] = 1
@@ -238,10 +238,10 @@ def a_star_search(maze):
 def displayNewMaze(maze, path):
 	temp = deepcopy(maze)
 	for vertex in path:
-		if temp.plots[vertex[1]][vertex[0]] != "P":
-			temp.plots[vertex[1]][vertex[0]] = "."
+		if temp.plots[vertex[0]][vertex[1]] != "P":
+			temp.plots[vertex[0]][vertex[1]] = "."
 
-	temp.plots[temp.initialPos[1]][temp.initialPos[0]] = "I"
+	temp.plots[temp.initialPos[0]][temp.initialPos[1]] = "I"
 
 	print(temp)
 
