@@ -1,8 +1,6 @@
 '''
 David Paez
-Panther ID: 6073392
-CAP4630 - Artificial Intelligence
-Mini Project: Search
+Mini Project: Maze Search
 
 search.py is a Python script that has an agent traverse through a 
 given Maze txt file where "%" are obstacles, "P" is the goal, and "." 
